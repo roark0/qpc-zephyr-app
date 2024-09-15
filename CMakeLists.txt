@@ -6,7 +6,11 @@ cmake_minimum_required(VERSION 3.20.0)
 # location of the QPC Zephyr module
 # NOTE: might need to adjust for your project
 #
-set(QPC ${CMAKE_CURRENT_SOURCE_DIR}/qpc)
+# set(QPC ${CMAKE_CURRENT_SOURCE_DIR}/test/qpc)
+
+set(QPC $ENV{HOME}/Projects/qp/qpc)
+
+# echo $ENV{HOME}
 
 # Zephyr stuff
 set(ZEPHYR_EXTRA_MODULES ${QPC})
