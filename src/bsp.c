@@ -45,7 +45,7 @@
 Q_DEFINE_THIS_FILE
 
 // Local-scope objects -----------------------------------------------------
-static struct gpio_dt_spec const l_led0 = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
+// static struct gpio_dt_spec const l_led0 = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 static struct k_timer zephyr_tick_timer;
 static uint32_t l_rnd; // random seed
 
@@ -98,8 +98,8 @@ static void zephyr_tick_function(struct k_timer *tid) {
 //============================================================================
 
 void BSP_init(void) {
-    int ret = gpio_pin_configure_dt(&l_led0, GPIO_OUTPUT_ACTIVE);
-    Q_ASSERT(ret >= 0);
+//     int ret = gpio_pin_configure_dt(&l_led0, GPIO_OUTPUT_ACTIVE);
+//     Q_ASSERT(ret >= 0);
 
     k_timer_init(&zephyr_tick_timer, &zephyr_tick_function, NULL);
 
@@ -159,11 +159,11 @@ void BSP_start(void) {
 }
 //............................................................................
 void BSP_ledOn(void) {
-    gpio_pin_set_dt(&l_led0, true);
+//     gpio_pin_set_dt(&l_led0, true);
 }
 //............................................................................
 void BSP_ledOff(void) {
-    gpio_pin_set_dt(&l_led0, false);
+//     gpio_pin_set_dt(&l_led0, false);
 }
 //............................................................................
 void BSP_displayPhilStat(uint8_t n, char const *stat) {

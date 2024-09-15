@@ -1,0 +1,1298 @@
+syntax = "proto3";
+import "nanopb.proto";
+
+option (nanopb_fileopt).long_names = false;
+option (nanopb_fileopt).enum_to_string = true; 
+
+// tftp传输数据包
+message tftpx_packet {
+  uint32 which_opc = 2;
+  uint32 blocknum = 3;
+  uint32 flag = 4;
+  bytes payload = 5[ (nanopb).max_size = 128 ];
+};
+
+// message ack {
+//   uint32 frame_id = 1;
+//   uint32 cmd_id = 2; // @which_value
+// }
+
+// 错误上报
+// message error_report {
+//   uint32 struct_id = 1; // @which_value
+//   uint32 frame_id   = 2;  // 帧id
+//   uint32 error_code  = 3; // 错误码
+//   uint32 error_para  = 4; // 错误参数，优先使用低位参数
+// }
+
+// // 错误清除
+// message error_clear {
+//   uint32 struct_id = 1;  // @which_value
+//   uint32 frame_id = 2;   // 帧id
+//   uint32 error_code = 4; // 错误码
+// }
+
+// MCU ID
+enum MCU_ID {
+  MCU_ANALYSER = 0; // 上位机
+  MCU_MASTER   = 1; // 主控板
+  MCU_SLAVE1   = 2; // 从驱动板1
+  MCU_SLAVE2   = 3; // 从驱动板2
+  MCU_SAMPLER  = 4; // 自动进样器
+};
+
+// 获取Mcu版本号
+message mcu_version {
+  uint32 mcu_id = 1;       // @MCU_ID
+  bytes version = 2;      // Mcu版本号
+  rtc_datetime compile_time = 3; // Mcu编译时间
+}
+
+// 获取所有Mcu版本号
+message mcu_all_version {
+  bytes version_m = 1;       // Mcu版本号
+  rtc_datetime compile_time_m = 2;  // Mcu编译时间
+  bytes version_s1 = 3;      // Mcu版本号
+  rtc_datetime compile_time_s1 = 4; // Mcu编译时间
+  bytes version_s2 = 5;      // Mcu版本号
+  rtc_datetime compile_time_s2 = 6; // Mcu编译时间
+  bytes version_as = 7;      // Mcu版本号
+  rtc_datetime compile_time_as = 8; // Mcu编译时间
+}
+
+// Mcu软复位
+message mcu_softreset {
+  uint32 id = 1; // @MCU_ID
+}
+
+// Mcu状态
+message mcu_state {
+  uint32 id = 1; // @MCU_ID
+  bool boot = 2; // true: bootloader状态, false: app状态
+}
+
+message rtc_datetime {
+  uint32 year = 1;
+  uint32 month = 2;
+  uint32 day   = 3;
+  uint32 hour = 4;
+  uint32 minute = 5;
+  uint32 second = 6;
+}
+
+// 针位置
+// 针水平位置
+enum PROBLE_HOR {
+  POSH_ORIGIN = 0;     // 初始位
+  POSH_CLOSED = 1;     // 封闭位
+  POSH_PUNCTURE = 2;   // 穿刺吸样位
+  POSH_LASER_A = 3;    // 散射通道A位
+  POSH_LASER_B = 4;    // 散射通道B位
+  POSH_LASER_C = 5;    // 散射通道C位
+  POSH_DIFF_POOL = 6;  // DIFF池位
+  POSH_WBC_POOL = 7;   // WBC池位
+  POSH_RBC_POOL = 8;   // RBC池位
+  POSH_R2_REAGENT = 9; // R2试剂位
+}
+
+// 针垂直位置
+enum PROBLE_VER {
+  POSV_ORIGIN = 0;          // 上位
+  POSV_adapter1 = 1;        // 适配器1
+  POSV_adapter2 = 2;        // 适配器2
+  POSV_LASER_A = 3;         // 散射通道A位
+  POSV_LASER_B = 4;         // 散射通道B位
+  POSV_LASER_C = 5;         // 散射通道C位
+  POSV_DIFF_POOL = 6;       // DIFF池位
+  POSV_WBC_POOL = 7;        // WBC池位
+  POSV_RBC_POOL = 8;        // RBC池位
+  POSV_R2_REAGENT = 9;      // CRP试剂位
+  POSV_CBC_SUCK = 10;       // 全血吸样位
+  POSV_FEW_BLOOD_SUCK = 11; // 微量血吸样位
+  POSV_QC_REAGENT = 12;     // 质控吸样位
+  POSV_PUNCTURE = 13;       // 穿刺位
+  POSV_AIR_INTERVAL = 14;   // 空气隔离位置
+}
+
+
+// ### 2.3 参数
+// 针水平位置参数
+message proble_config_hor {
+  uint32 origin = 1;      // 起始位
+  uint32 closed = 2;      // 封闭位
+  uint32 puncture = 4;    // 穿刺吸样位
+  uint32 laser_a = 5;     // 散射通道A位
+  uint32 laser_b = 6;     // 散射通道B位
+  uint32 laser_c = 7;     // 散射通道C位
+  uint32 diff_pool = 8;   // DIFF池位
+  uint32 wbc_pool = 9;    // WBC池位
+  uint32 rbc_pool = 10;   // RBC池位
+  uint32 reagent_r2 = 11; // r2试剂位
+}
+
+// 针垂直位置参数
+message proble_config_ver {
+  uint32 origin = 1;          // 上位
+  uint32 adapter1 = 2;        // 适配器1
+  uint32 adapter2 = 3;        // 适配器2
+  uint32 laser_a = 4;         // 散射通道A位
+  uint32 laser_b = 5;         // 散射通道B位
+  uint32 laser_c = 6;         // 散射通道C位
+  uint32 diff_pool = 7;       // DIFF池位
+  uint32 wbc_pool = 8;        // WBC池位
+  uint32 rbc_pool = 9;        // RBC池位
+  uint32 reagent_r2 = 10;     // R2试剂位
+  uint32 cbc_suck = 11;       // 全血吸样位
+  uint32 few_blood_suck = 12; // 微量血吸样位
+  uint32 qc_suck = 13;        // 质控吸样位
+  uint32 puncture = 14;       // 穿刺位
+  uint32 air_interval = 15;   // 空气间隔
+}
+
+// 针参数
+message proble_config {
+  proble_config_hor hor = 1;
+  proble_config_ver ver = 2;
+}
+
+// 针位置
+message proble_position {
+  uint32 position_hor = 1;
+  uint32 position_ver = 2;
+}
+
+// 用户参数
+/// ### 将应用自定义的参数(用于存储上位机自定义参数)
+message config_user {
+  string key = 2;   // 参数名称(最大10个字符)
+  string data = 3;  // 有效数据(最大256个字符)
+}
+
+// 时序
+// 时序缓冲编号值
+enum TIMIMG_ID {
+  CHANNAL_1 = 0; // 通道1
+  CHANNAL_2 = 1; // 通道2
+  CHANNAL_3 = 2; // 通道3
+  CHANNAL_4 = 3; // 通道4
+};
+
+// 开始执行时序
+message timging_exec {
+  uint32 channel = 1;       // @TIMIMG_ID
+  uint32 timging_index = 2; // 时序编号
+}
+
+// 停止执行时序
+message timging_stop {
+  uint32 channel = 1;       // @TIMIMG_ID
+  uint32 timging_index = 2; // 时序编号
+}
+
+// 系统同步指令,用于将时序指令返回给上位机控制数字信号板
+message timging_sync_back { bytes data = 1; }
+
+// 设置时序时间点
+// 用来标记每一段时序执行的时间点,以约束时序的实时性
+message timging_time_mark {
+  uint32 channel = 1;   // @TIMIMG_ID
+  uint32 index = 2;     // 时序编号
+  uint32 time_mark = 3; // 运行时间点
+}
+
+
+// ## 3. IO 设备
+// 3.1 状态灯
+enum LIGHT_STATE {
+  LED_LIGHT_OFF = 0;    // 关闭
+  LED_SOLID_GREEN = 1;  // 绿色闪烁
+  LED_BLINK_GREEN = 2;  // 绿色闪烁
+  LED_SOLID_RED = 3;    // 红色常亮
+  LED_BLINK_RED = 4;    // 红色闪烁
+  LED_SOLID_YELLOW = 5; // 黄色闪烁
+  LED_BLINK_YELLOW = 6; // 黄色闪烁
+};
+
+message light_state {
+  uint32 state = 1; // 状态灯设置状态 @LIGHT_STATE
+}
+
+// 3.2按键  
+// 6路按键, 对应时序里的KEY
+enum KEY {
+  KEY0 = 0; // 占位
+  KEY1 = 1; // 按键1
+  KEY2 = 2; // 按键2
+  KEY3 = 3; // 按键3
+  KEY4 = 4; // 按键4
+  KEY5 = 5; // 按键5
+  KEY6 = 6; // 按键6
+};
+
+enum KEY_ALIAS {
+  KEY_ALIAS_0 = 0 ;// 占位
+  KEY_TEST = 1; // 测试模式
+  KEY_OCW  = 2; // 进样模式
+  KET_STAR = 3; // 启动
+  KEY_INT  = 4;
+};
+
+// 按键使能控制
+message key_ctrl {
+  repeated bool enable = 1 [(nanopb).max_count = 8, (nanopb).fixed_count = true]; // 监控使能 (false：禁止监控; true：使能监控)
+}
+
+// 获取按键状态
+message key_state {
+  repeated bool state = 1 [(nanopb).max_count = 8, (nanopb).fixed_count = true]; // 按键状态（true: 为正常状态, false为异常状态）
+}
+
+// 3.3 微动开关
+// 微动开关,接近光耦
+enum SWITCH
+{
+  // 从驱动板U1
+  SWITCH0 = 0; // 占位
+  SWITCH1 = 1; // 左路门开关检测
+  SWITCH2 = 2; // 光路盒开关检测
+  SWITCH3 = 3; // 散射通道挡板开关检测
+  SWITCH4 = 4; // 分液座到位光耦
+  // 自动进样板
+  SWITCH5 = 5; // 试管架到位检测
+}
+
+// 微动开关别名
+enum SWITCH_ALIAS 
+{
+  SWITCH_ALIAS_0 = 0;
+  SWITCH_LSB = 1; // 左侧门 
+  SWITCH_OPB = 2; // 光路盒
+  SWITCH_SCB = 3; // 散射通道挡板 
+  SWITCH_FYZ = 4; // 分液座到位光耦
+  SWITCH_TRP = 5; // 试管架到位检测
+};
+
+// 电磁铁
+enum MAGNET 
+{
+  MAGNET1 = 0;
+}
+
+// 电磁铁控制
+message magnet_ctrl
+{
+  bool enable = 1;
+}
+
+// 微动开关控制,包括(左侧门开关检测,光路盒开关检测,散射通道挡板开关检测,试管架到位检测)
+message switch_ctrl {
+   repeated bool enable = 1 [(nanopb).max_count = 10, (nanopb).fixed_count = true]; // 监控使能 (false：禁止监控; true：使能监控)
+}
+
+// 获取指定通道传感器的值,包括(左侧门开关检测,光路盒开关检测,散射通道挡板开关检测,试管架到位检测)
+message switch_state {
+  repeated bool state = 1 [(nanopb).max_count = 10, (nanopb).fixed_count = true]; // 按键状态（true: 为正常状态, false为异常状态）
+}
+
+enum OC {
+  OC0   = 0; // 占位,不使用
+  OC1 = 1; // 光耦1
+  OC2 = 2; 
+  OC3 = 3; 
+  OC4 = 4; 
+  OC5 = 5; 
+  OC6 = 6; 
+  OC7 = 7; 
+  OC8 = 8; 
+  OC9 = 9; 
+  OC10 = 10; 
+  OC11 = 11; 
+  OC12 = 12; 
+  OC13 = 13; 
+  OC14 = 14; 
+  OC15 = 15; 
+  OC16 = 16; // 光耦16
+};
+
+// 驱动板光耦
+enum OC_SLAVE
+{
+  OC_SLAVE_0  = 0; // 占位
+  OC_INJ_ASPE = 1; // 样本注射器
+  OC_INJ_CRE  = 2; // 样本清洗注射器
+  OC_INJ_DILE = 3; // 稀释液注射器
+  OC_INJ_SPE  = 4; // 鞘流样本注射器
+  OC_INJ_SHE  = 5; // 鞘液注射器
+  OC_INJ_RSPE = 6; // 鞘流样本准备注射器
+  OC_SV       = 7;    // 采样针垂直移动电机
+  OC_SH       = 8;   // 采样针水平移动电机
+  OC_INJ_LYE  = 9; // 溶血剂注射器
+  OC_INJ_R1E  = 10; // R1注射器
+};
+
+// 自动进样板光耦
+enum OC_SAMPLER
+{
+    OC_SAMPLER_0 = 0; // 占位
+    OC_CATCH_HOR = 1;   // 水平抓手电机
+    OC_CATCH_VER = 2;   // 垂直抓手电机
+    OC_CATCH_MIX = 3;   // 混匀抓手电机
+    OC_SELF_PUSH = 4;   // 进架电机
+    OC_SELF_OUT  = 5;   // 出架电机
+    OC_SELF_ENTER = 6;  // 样本皮带电机
+    OC_SCANNER_VER = 7; // 条码垂直电机
+    OC_SCANNER_HOR = 8; // 条码旋转电机
+    OC_PUSH_DETET = 9;  // 进架区检测对射光耦
+    OC_BLET_ZERO  = 10; // 皮带零位对射光耦
+    OC_TUBE_DETET = 11; // 试管检测反射光耦
+    OC_SHAKE_DETET = 12; // 摇匀检测复检反射光耦
+    OC_OUT_ARRI = 13;   // 出架检测反射光耦
+    OC_OUT_FULL = 14;   // 出架区满架反射光耦
+    OC_BLET_RESET = 15; // 皮带电机光耦
+}
+
+// 获取光耦状态1
+// @OC
+message oc_level {
+  repeated bool level = 1 [(nanopb).max_count = 16, (nanopb).fixed_count = true]; // 按键状态（true: 为正常状态, false为异常状态）
+}
+
+// 3.5 浮子
+// 2路废液浮子传感器
+enum FLOATER {
+  FLOATER0 = 0; // 占位
+  FLOATER1 = 1; // 废液浮子1 LEF_M1 D1-PD14
+  FLOATER2 = 2; // 废液浮子2 LEF_M2 D1-PD15(预留)
+};
+
+// 浮子传感器使能控制
+message floater_ctrl {
+  uint32 id = 1;   // @FLOATER
+  bool enable = 2; // false：禁止监控; true：使能监控
+}
+
+// 获取指定浮子通道传感器的状态
+message floater_state {
+  uint32 id = 1; // @FLOATER_ID
+  bool state = 2; // 开关状态（true: 为正常状态, false为异常状态）;
+  // 废液浮子:异常状态为废液满
+}
+
+// 3.6泵控制
+// 泵单元
+enum PUMP {
+  PUMP_0 = 0; // 占位
+  PUMP_1 = 1; // 泵1 M-PE10
+  PUMP_2 = 2; // 泵2 M-PE11
+  PUMP_3 = 3; // 泵3 M-PE12
+  PUMP_4 = 4; // 泵4 M-PE13
+  PUMP_5 = 5; // 泵5 M-PE14
+  PUMP_6 = 6; // 泵6 M-PE15
+};
+message pump_ctrl {
+  uint32 id = 1;      // 泵uint32
+  bool state = 2;     // true 开泵, false:关泵
+  uint32 timeout = 3; // 自动关闭时间,填0时需要手动关闭
+}
+
+// 阀单元
+enum VALUE {
+  V_0 = 0;   // 占位
+  V_1 = 1;   // 阀1
+  V_2 = 2;   // 阀2
+  V_3 = 3;   // 阀3
+  V_4 = 4;   // 阀4
+  V_5 = 5;   // 阀5
+  V_6 = 6;   // 阀6
+  V_7 = 7;   // 阀7
+  V_8 = 8;   // 阀8
+  V_9 = 9;   // 阀9
+  V_10 = 10;   // 阀10
+  V_11 = 11;   // 阀11
+  V_12 = 12;   // 阀12
+  V_13 = 13;   // 阀13
+  V_14 = 14;   // 阀14
+  V_15 = 15;   // 阀15
+  V_16 = 16;   // 阀16
+  V_17 = 17;   // 阀17
+  V_18 = 18;   // 阀18
+  V_19 = 19;   // 阀19
+  V_20 = 20;   // 阀20
+  V_21 = 21;   // 阀21
+  V_22 = 22;   // 阀22
+  V_23 = 23;   // 阀23
+  V_24 = 24;   // 阀24
+  V_25 = 25;   // 阀25
+  V_26 = 26;   // 阀26
+  V_27 = 27;   // 阀27
+  V_28 = 28;   // 阀28
+  V_29 = 29;   // 阀29
+  V_30 = 30;   // 阀30
+  V_31 = 31;   // 阀31
+  V_32 = 32;   // 阀32
+  V_33 = 33;   // 阀33
+  V_34 = 34;   // 阀34
+  V_35 = 35;   // 阀35
+  V_36 = 36;   // 阀36
+  V_37 = 37;   // 阀37
+  V_38 = 38;   // 阀38
+  V_39 = 39;   // 阀39
+};
+// 3.7 阀控制
+message value_ctrl {
+  uint32 id = 1;      // @VALUE
+  bool state = 2;     // true 开泵, false:关泵
+  uint32 timeout = 3; // 自动关闭时间,填0时需要手动关闭
+}
+
+// 3.8电源控制
+// 5路电源控制
+enum POWER_ID {
+  POWER_0V = 0;     // 占位
+  POWER_5V = 1;     // MCU_5.3VPWR_MN 控制电源 M-PF13
+  POWER_12V = 2;    // MCU_12VPWR_GK 控制电源 M-PF14
+  POWER_24V = 3;    // MCU_24VPWR_DY 控制电源 M-PF15
+  POWER_DRIVER = 4; // Control_C M-PB0 控制从驱动板电源
+  POWER_SAMPLE = 5; // Control_Z M-PB1 控制自动进样板电源
+};
+message power_ctrl {
+  uint32 id = 1;  // @POWER_ID
+  bool state = 2; // true 开电源, false:关电源
+}
+
+// 压力标定
+// 建压
+message build_pressure {
+  // 建立负压 @build_pressure_negative
+  // 建立正压 @build_pressure_positive
+  bool enable = 1; // 0: true 开始建立压力 false: 禁止建立压力(释放压力)
+  uint32 target_ad = 2;      // 目标压力AD值
+  uint32 low_threshold = 3;  // 目标压力下限
+  uint32 high_threshold = 4; // 目标压力下限
+  uint32 build_time = 5; // 压力建立时间,单位为ms,超过该时间建压结束
+}
+
+// 获取空气压力值
+message air_pressure {
+  // @get_air_pressure_negative = 402; // 获取负压传感器值
+  // @get_air_pressure_positive = 403; // 获取正压传感器值
+  uint32 ad_value = 1; // AD值
+}
+
+// CBC泄露检测
+message cbc_leak_detect
+{
+  uint32 time_start = 1; // 检测起始时间
+  uint32 time_end  = 2;  // 检测结束时间
+  uint32 press_p1 = 3;   // P1压力值
+  uint32 press_p2 = 4;   // P2压力值
+  bool state = 5; // 状态, true为正常,false为异常
+}
+
+// 4.2 ADC液体压力传感器(驱动板U2) 
+enum ADC_LIQUID 
+{
+  ADC_LIQUID0 = 0; // 占位
+  ADC_LIQUID1 = 1; // 稀释液传感器
+  ADC_LIQUID2 = 2; // 5D溶血剂传感器
+  ADC_LIQUID3 = 3; // 5H溶血剂传感器 
+  ADC_LIQUID4 = 4; // 清洗液传感器
+  ADC_LIQUID5 = 5; // 缓冲液检测光耦
+  ADC_LIQUID6 = 6; // (预留)
+}
+
+// ADC液位传感器检测配置
+message liquid_adc_config {
+  uint32 id = 2;     // @LIQUID
+  uint32 min_ad = 3; // 低阈值
+  uint32 max_ad = 4; // 高阈值
+}
+
+// ADC液位传感器检测使能
+message liquid_adc_ctrl {
+  uint32 id = 1;   // @LIQUID
+  bool enable = 2; // 监测使能: true: 开启检测, false: 关闭检测
+  uint32 min_ad = 3;
+  uint32 max_ad = 4;
+}
+
+// ADC液位传感器状态
+message liquid_adc_state {
+  uint32 id = 1;   // @LIQUID
+  bool enable = 2; // 监测使能: true:开启检测, false:关闭检测
+  bool state = 3;
+  uint32 min_ad = 4;     // 低阈值
+  uint32 current_ad = 5; // AD传感值值
+}
+
+// 光耦式液体压力传感器
+enum OC_LIQUID
+{
+  OC_LIQUID0 = 0;
+  OC_LIQUID1 = 1; // 储液罐液位检测光耦(气泡检测)
+  OC_LIQUID2 = 2; // 鞘流压力检测光耦
+};
+
+
+// 获取光耦式液体压力传感器状态
+message oc_liquid_state
+{
+  repeated bool state = 1 [(nanopb).max_count = 8, (nanopb).fixed_count = true]; 
+}
+
+// 4.3电压
+
+enum ADC_VOL
+{
+  ADC_VOL0 = 0;
+  ADC_VOL1 = 1; // 12V电压检测
+  ADC_VOL2 = 2; // 24V电压检测
+}
+// 电压检测使能
+message voltage_ctrl {
+  // 设置电压报警阈值
+  uint32 id = 2;          // 电压检测通道id
+  bool enable = 3;        // 监控使能
+  uint32 min_voltage = 4; // 最低电压(mV)
+  uint32 max_voltage = 5; // 最高电压(mV)
+}
+
+// 获取当前电压值
+message voltage_state {
+  uint32 id = 1;              // 电压检测通道id
+  uint32 current_voltage = 2; // 当前电压
+}
+
+// 4.4 气泡检测
+// 气泡检测通道
+enum BUBBLE_ID {
+  BUBBLE1 = 0; // 气泡检测通道1
+  BUBBLE2 = 1; // 气泡检测通道2
+}
+
+// 气泡检测使能
+message bubble_detect_ctrl {
+  uint32 id = 1;     // @BUBBLE_ID
+  uint32 enbale = 2; // 气泡检测使能
+}
+
+// 获取气泡检测状态
+message bubble_detect_state {
+  uint32 id = 1;         // @BUBBLE_ID
+  bool detele_state = 2; // 气泡检测状态
+  bool test_state = 3;   // 自测状态
+}
+
+// 5.PWM设备
+// 5.1风扇
+
+enum FAN_ID {
+  FAN_0 = 0; // (占位)
+  FAN_1 = 1; // 风扇1
+  FAN_2 = 2; // 风扇2
+}
+
+message fan_ctrl {
+  uint32 id = 1;    // @FAN_ID
+  bool   state = 2; // 风扇开关状态
+}
+
+// 5.2混匀电机（PWM）
+enum MIXER
+{
+  MIXER0 = 0; // 占位
+  MIXER1 = 1; // 微量血混匀直流电机
+}
+message mixer_ctrl {
+  uint32 fraq = 1; // 频率
+  uint32 duty = 2; // 占空比
+  uint32 time = 3; // 时间
+  uint32 enable =4; // 开始混匀
+}
+
+message mixer_config {
+  uint32 fraq = 1; // 频率
+  uint32 duty = 2; // 占空比
+  uint32 time = 3; // 时间
+}
+
+// 5.3 蜂鸣器
+// 蜂鸣器状态
+enum BEEP_STATE {
+  BEEP_OFF = 0;               // 关闭蜂鸣器
+  BEEP_ONE_SHORT = 1;         // 短鸣一声
+  BEEP_TWO_SHORT = 2;         // 短鸣二声
+  BEEP_ONE_LONG = 3;          // 长鸣一声
+  BEEP_INTERMITTENT_LONG = 4; // 不间断长鸣
+};
+
+// 获取蜂鸣器状态
+message buzzer {
+  uint32 state = 1; // @BEEP_STATE
+}
+
+// 电机ID
+enum MOTOR_ID {
+  MT0 = 0; // 占位
+  MT1 = 1;  // 电机1
+  MT2 = 2; 
+  MT3 = 3; 
+  MT4 = 4; 
+  MT5 = 5; 
+  MT6 = 6; 
+  MT7 = 7; 
+  MT8 = 8; 
+  MT9 = 9; 
+  MT10 = 10; 
+  MT11 = 11; 
+  MT12 = 12; 
+  MT13 = 13; 
+  MT14 = 14; 
+  MT15 = 15; 
+  MT16 = 16; // 电机16
+};
+
+// 驱动板电机
+enum MT_SLAVE
+{
+  MT_SLAVE_0  = 0; // 占位
+  MT_INJ_ASPE = 1; // 样本注射器
+  MT_INJ_CRE  = 2; //  样本清洗注射器MT_
+  MT_INJ_DILE = 3; // 稀释液注射器
+  MT_INJ_SPE  = 4; // 鞘流样本注射器
+  MT_INJ_SHE  = 5; // 鞘液注射器
+  MT_INJ_RSPE = 6; // 鞘流样本准备注射器
+  MT_SH       = 7; // 采样针水平移动电机
+  MT_SV       = 8; // 采样针垂直移动电机
+  MT_INJ_LYE  = 9; // 溶血剂注射器
+  MT_INJ_R1E  = 10; // R1注射器
+};
+
+// 自动进样电机
+enum MT_SAMPLER
+{
+  MT_SAMPLER_0 = 0;  // 保留
+  MT_CATCH_HOR = 1;   // 水平抓手电机
+  MT_CATCH_VER = 2;   // 垂直抓手电机
+  MT_CATCH_MIX = 3;   // 混匀抓手电机
+  MT_SELF_PUSH = 4;   // 进架电机
+  MT_SELF_OUT  = 5;   // 出架电机
+  MT_SELF_ENTER = 6;  // 样本皮带电机
+  MT_SCANNER_VER = 7; // 条码垂直电机
+  MT_SCANNER_HOR = 8; // 条码旋转电机
+};
+
+// 电机运动状态
+enum MOTOR_STATUS {
+  IDLE = 0;        //	电机空闲
+  BUSY = 0x01;     //	电机忙碌
+  NO_RESET = 0x02; //	电机未复位
+  ERR = 0x03;      //	电机错误
+};
+
+// 获取电机状态(R)
+message motor_state {
+  uint32 motor_id = 1; // @MOTOR_ID
+  uint32 status = 2;   // @MOTOR_STATUS
+  bool lower_power = 3; // 电机低功耗状态 true: 开启低功耗 false:关闭低功耗
+  int32 current_step = 4;     // 当前位置对应的步数
+  uint32 current_positon = 5; // 当前位置对应的步数
+}
+
+// 电机运动速度挡位
+enum MOTOR_GRADE {
+  GRADE0 = 0; // 表示默认挡位
+  GRADE1 = 1;
+  GRADE2 = 2;
+  GRADE3 = 3;
+  GRADE4 = 4;
+  GRADE5 = 5;
+  GRADE6 = 6;
+  GRADE7 = 7;
+  GRADE8 = 8;
+  GRADE9 = 9;
+  GRADE10 = 10;
+  GRADE11 = 11;
+  GRADE12 = 12;
+  GRADE13 = 13;
+  GRADE14 = 14;
+  GRADE15 = 15;
+  GRADE16 = 16; // 16挡
+};
+
+// 配置电机参数(RW)
+message motor_config {
+  uint32 motor_id = 2;    // @MOTOR_ID
+  int32 min_position = 3; // 最大位置对应步数
+  int32 max_position = 4; // 最小位置对应步数
+}
+//  电机运动特定步数
+message motor_move {
+  uint32 id = 1;    // @MOTOR_ID
+  uint32 grade = 2; // @MOTOR_GRADE
+  int32 step = 3;
+  uint32 timeout = 4;
+}
+
+// 电机两阶变速运动
+message motor_move_linkage {
+  uint32 id = 1;     // @MOTOR_ID
+  uint32 grade1 = 2; // @MOTOR_GRADE
+  int32 step1 = 3;
+  uint32 grade2 = 4; // @MOTOR_GRADE
+  int32 step2 = 5;
+  uint32 timeout = 6;
+}
+
+// 电机复位模式
+enum RESET_MODE {
+  RESET_ONCE = 0;  // 找零位
+  RESET_TWICE = 1; // 机型复位
+}
+
+message motor_reset {
+  uint32 motor_id = 1;
+  uint32 reset_grade = 2; // @MOTOR_GRADE
+  uint32 mode = 3;        // @RESET_MODE
+  int32 max_position = 4;
+  int32 last_positon = 5; // 上次位置对应步数
+  uint32 timeout = 6;     // 超时时间
+}
+
+// 电机运动到特定位置
+message motor_goto {
+  uint32 motor_id = 1; // @MOTOR_ID
+  uint32 grade = 2;    // @MOTOR_GRADE
+  uint32 positon = 3;
+  uint32 timeout = 4;
+}
+
+// 控制电机
+// 注射器吸排液
+message motor_suck {
+  uint32 motor_id = 1;  // @MOTOR_ID
+  uint32 run_grade = 2; // @MOTOR_GRADE
+  uint32 volume = 3;    // 液量(0.1ul)
+  uint32 timeout = 4;
+}
+
+// 电机上去电控制
+message motor_low_power {
+  uint32 motor_id = 1; // @MOTOR_ID
+  bool enable = 2;     // true: 开启去电控制
+}
+
+// 获取电机当前位置对应的步数
+message motor_current_position {
+  uint32 motor_id = 1; // @MOTOR_ID
+  int32 steps = 2;     // 当前步数
+}
+
+// 获取电机当前位置相对复位位置的步数
+message motor_step_to_reset {
+  MOTOR_ID motor_id = 1; // @MOTOR_ID
+  uint32 pos = 2;
+  uint32 grade = 3; // @MOTOR_GRADE
+  uint32 steps = 4;
+  uint32 timeout = 5;
+}
+
+// 7. 温控组件(ADC)
+enum TEMP {
+  TEMP_0     = 0; // 保留
+  // 主控板(4路) 
+  TEMP_CRP_A = 1; // CRPA通道温度
+  TEMP_CRP_B = 2; // CRPB通道温度
+  TEMP_CRP_C = 3; // CRPC通道温度
+  TEMP_CRP_CLOD = 4; // CRP制冷
+  // 从驱动板U1
+  TEMP_DIFF = 5;  // DIFF池温度
+  TEMP_ENV = 6;   // 环境温度
+}
+// 设定指定温度通道的温度监控报错范围值（在最小温度值和最大温度值之间的数据为正常值，其它值则主动上报错误）。
+message temperature_config {
+  uint32 id = 2;         // @TEMP_ID
+  float target_temp = 3; // 目标温度值
+  float offset_temp = 4; // 修正量（传感器与实际温度差值）
+  float min_temp = 5;    // 最小温度值,小于此温度，主动上报错误
+  float max_temp = 6;    // 最大温度值,大于此温度，主动上报错误
+  bool auto_enbale = 8;  // 自动温控使能(false：关闭; true：打开)
+  bool alarm_enable = 9; // 报警使能(使能标志:false：禁止监控; true：使能监控)
+  uint32 pid_p = 11; // pid P值
+  uint32 pid_i = 12; // pid I值
+  uint32 pid_d = 13; // pid D值
+}
+
+// 指定通道的加热器帕尔贴 开/关
+// 维持指定加热通道（单向，只能加热或者制冷）
+message temperature_ctrl {
+  uint32 id = 1; // @TEMP_ID
+  uint32 enable = 2; // enable 为true时,加热泵加热/帕尔贴制冷,并关闭自动温控
+}
+
+// 获取指定通道的温度值
+message temperature_state {
+  uint32 id = 1;
+  float current_temp = 2; // 传感器测的当前温度值
+}
+
+// 8. CRP AD采集
+// ## 3路散射通道控制
+// scattered_light_adc
+enum LASER_ID {
+  LASER_0 = 0; // 占位
+  LASER_1 = 1; // 激光1
+  LASER_2 = 2; // 激光2
+  LASER_3 = 3; // 激光3
+  // JGD_Open 散射通道1使能 M-PG12
+  // JGF_Open 散射通道2使能 M-PG14
+  // JGX_Open 散射通道3使能 M-PD7
+};
+// 控制指定通道的激光开/关
+message laser_ctrl {
+  uint32 channel = 1;  // @LASER_ID
+  bool laser_open = 2; // true:打开激光, false: 关闭激光
+}
+
+// CRP增益
+enum CRP_CHANNAL
+{
+  CRP_CHANNAL_0 = 0; // 占位
+  CRP_A = 1; // CRP通道A
+  CRP_B = 2; // CRP通道B
+  CRP_C = 3; // CRP通道C
+}
+message crp_gain {
+  // @crp_set_gain
+  uint32 channel = 1;    // @CRP_CHANNAL
+  uint32 gain_value = 2; // 增益值
+}
+
+// 获取CRP通道AD值
+message crp_ad_value {
+  uint32 channel = 1;  // @CRP_CHANNAL
+  uint32 ad_value = 2; // AD值
+}
+
+// AD主动返回间隔
+message crp_ad_interval {
+  uint32 channel = 1;  // @CRP_CHANNAL
+  uint32 interval = 2; // 时间间隔,单位为毫秒
+  // [注:当时间间隔为0时,关闭主动返回该激光通道AD值功能]
+}
+
+// 11搅拌杆
+// message mix {
+//   // 控制
+//   message ctrl {}
+//   // 状态
+
+//   message state {}
+
+//   // 配置
+//   message config {}
+// }
+
+// 13 抓手组件
+// message Catch {}
+enum SCANNER {
+  SCANNER1 = 0; // 扫描仪1
+  SCANNER2 = 1; // 扫描仪2
+}
+// 14 条码扫描仪
+
+// 条码扫描仪控制
+message scanner_ctrl {
+  uint32 id = 1;       // @SCANNER
+  bool laser_open = 2; // 激光控制
+}
+
+// 条码扫描仪状态
+message scanner_state {
+  uint32 id = 1;      // @SCANNER
+  string version = 2; // 查询扫描仪版本
+}
+
+// 条码扫描仪初始化
+message scanner_init {
+  uint32 id = 1; // @SCANNER
+}
+
+// 条码扫描仪扫码
+message scanner_scan {
+  uint32 id = 1;  // @SCANNER
+  bytes data = 2; // 扫描数据
+}
+
+// 16自动进样
+// 进样位置调试
+message sampler_position_config {
+  uint32 shelf_push_move = 1;      // 进架推手运行距离
+  uint32 shelf_push_overshoot = 2; // 进架推手过冲距离
+  uint32 enter_slelf = 3;          // 皮带进架位
+  uint32 shelf_scan = 4;           // 试管架扫码位
+  uint32 tube_scan = 5;            // 试管扫码位
+  uint32 mixing_catch = 6;         // 混匀抓手位
+  uint32 puncture_sample = 7;      // 穿刺采样位
+  uint32 shelf_out = 8;            // 皮带出架位
+  uint32 urgent_sample = 9;        // 急诊采样位
+  uint32 urgent_put = 10;          // 急诊放入位置
+}
+
+enum SAMPLER_POS {
+  SAMPLER_RESERED = 0;      // 占位位置,不使用
+  SHELF_PUSH_MOVE = 1;      // 进架推手运行距离
+  SHELF_PUSH_OVERSHOOT = 2; // 进架推手过冲距离
+  ENTER_SLELF = 3;          // 皮带进架位
+  SHELF_SCAN = 4;           // 试管架扫码位
+  TUBE_SCAN = 5;            // 试管扫码位
+  MIXING_CATCH = 6;         // 混匀抓手位
+  PUNCTURE_SAMPLE = 7;      // 穿刺采样位
+  SHELF_OUT = 8;            // 皮带出架位
+  URGENT_SAMPLE = 9;        // 急诊采样位
+  URGENT_PUT = 10;          // 急诊放入位置
+}
+
+// 混匀位置调试
+message sampler_mixing_config {
+  uint32 hor_slow_down = 1;     // 水平减速位
+  uint32 hor_catch = 2;         // 水平抓取位
+  uint32 hor_cbc_mixing = 3;    // 全血水平混匀位
+  uint32 hor_few_blood_put = 4; // 微量血水平放置位
+  uint32 ver_catch = 5;         // 垂直抓取位
+  uint32 ver_cbc_mixing = 6;    // 全血垂直混匀位
+  uint32 ver_few_blood_put = 7; // 微量血垂直放置位
+  uint32 cbc_mixing_start = 8;  // 全血混匀起始位
+  uint32 cbc_mixing_end = 9;    // 全血混匀终止位
+  uint32 few_blood_speed = 10;  // 微量血混匀速度
+  uint32 few_blood_time = 11;   // 微量血混匀时间
+}
+
+// 混匀位置
+enum MIXING_POS {
+  MIXING_RESERED = 0;
+  HOR_SLOW_DOWN = 1;     // 水平减速位
+  HOR_CATCH = 2;         // 水平抓取位
+  HOR_CBC_MIXING = 3;    // 全血水平混匀位
+  HOR_FEW_BLOOD_PUT = 4; // 微量血水平放置位
+  VER_CATCH = 5;         // 垂直抓取位
+  VER_CBC_MIXING = 6;    // 全血垂直混匀位
+  VER_FEW_BLOOD_PUT = 7; // 微量血垂直放置位
+  CBC_MIXING_START = 8;  // 全血混匀起始位
+  CBC_MIXING_END = 9;    // 全血混匀终止位
+}
+
+// 自动进样参数
+message autosampler_config {
+  sampler_position_config position = 1;
+  sampler_mixing_config mixing = 2;
+}
+
+// 控制动作类
+// 初始化
+// 组件初始化：在指定定时间内，组件顺序完成:
+// 清架->所有电机复位->所有变量状态复位
+message autosampler_init {
+  bool result = 1;
+  // 初始化结果: true: 初始化成功; false: 初始化失败
+}
+
+// 请求开始推送试管架至测定线(进架)
+message autosampler_self_push {
+  bool result = 1;
+  //是否可以推送结果：0 :可以推送 1 :不可以推送
+}
+
+// 出架
+message autosampler_self_clear {
+  bool result = 1;
+  // 出架结果：0 :出架成功 1 :出架失败
+}
+
+// 试管架运动到特定位置
+message autosampler_shelf_goto {
+
+    uint32 rack_id  = 1; // 试管架ID
+    uint32 rack_pos = 2;    // 试管架上试管位置，可用范围：1–10
+    uint32 position = 3;    // 自动进样器设定的工位：
+    bool detect_empty = 4;  // 是否检测非空 true:检测 false:不检测
+    bool result = 5;        // 移动结果: true: 移动成功; false: 移动失败
+    // bytes rack_barcode = 6; // 样本架条码内容，其中0代表急诊试管座
+  }
+  
+// 试管架信息上报
+message autosampler_self_info
+{
+  uint32 rack_id  = 1; // 试管架ID
+  bytes barcode   = 2; // 条码
+}
+
+// 样本信息上报
+message autosampler_tube_info
+{
+  uint32 rack_id  = 1; // 试管架ID
+  uint32 rack_pos = 2; // 试管架上位置
+  bytes barcode   = 3; // 条码
+}
+
+// 通知自动进样器已使用完指定位置的样本
+message autosampler_sample_used_notify {
+  uint32 rock_id = 1;
+  // 自动进样器与分析仪之间唯一试管架uint32:
+  // 0 ：控制急诊座,
+  // 大于1 :试管架uint32
+  uint32 rock_pos = 2;
+  // 试管架上位置: 试管架位置为:1-10, RACK uint32为0时，该字段无效
+  uint32 position = 3;
+  // 自动进样器设定的位置：
+  // 1:皮带上抓取位;
+  // 2:皮带上采样位;
+  // 3:急诊座采样（抓取）位;
+  // 4:急诊座样本放置位
+}
+
+// 急诊上报
+message autosampler_urgent_alarm { uint32 result = 1; }
+
+/// Master
+
+// ### SPI1 W25Q128
+// SPI1_CS1 M-PA4
+// SPI1_CLK M-PA5
+// SPI1_MISO M-PA6
+// SPI1_MOSI M-PA7
+
+/// ## 1路串口
+// M_TXD1  M-PA9
+// M_RXD1 M-PA10
+
+/// ## 1路CAN
+// CAN_RXD M-PA11
+// CAN_TXD M-PA12
+
+/// ## SPI2 CRP ADC+GAIN
+// SPI2_XCS0 M-PD6
+// SPI2_XCS1 M-PG9
+// SPI2_DCS0 M-PG10
+// SPI2_DCS1 M-PG11
+// SPI2_FCS0 M-PG13
+// SPI2_FCS1 M-PG15
+// SPI2_CLK M-PB13
+// SPI2_MISO M-PB14
+// SPI2_MOSI M-PB15
+
+/// ## SPI3 W5500
+// SPI3_CS3 M-PA15
+// SPI3_CLK M-PB3
+// SPI3_MISO M-PB4
+// SPI3_MOSI M-PB5
+// W5500_INTn M-PF10
+// MCPU_LED1 LED灯 M-PF12
+
+// C1_TXD1 D1-PA9
+// C1_TRD1 D1-PA10
+
+// CAN1_RXD1 D1-PA11
+// CAN1_TXD1 D1-PA12
+
+// C1_LED1 D1-PC14
+// C1_LED2 D1-PC15
+
+// C2_LED1 D2-PC14
+// C2_LED2 D2-PC15
+
+// 上位机与中位机通信
+message msg {
+  uint32 frame_id = 1;  // 帧id
+  uint32 device_id = 2; // @MCU_ID 目标设备ID,如需发送给上位机填0;发送给中位机则填1;发送给驱动板U1则填2,中位机单元会直接转发(上位机给中下位机发送数据可直接填1)
+  uint32 source_id = 3; // 发送端板卡id
+  uint32 flag = 4;
+  bytes error = 5;
+  option (nanopb_msgopt).anonymous_oneof = true;
+  // option (nanopb_msgopt).submsg_callback = true;
+
+  oneof value {
+    // ## 1. 错误上报与清楚
+    // error_report error_report = 10;
+    // error_clear error_clear = 11;
+    // ack ack = 13;
+    // ## 2. 仪器 && 整机
+    // ### 2.1 维护操作
+    // 2.2 Mcu相关
+
+    rtc_datetime set_datetime = 14;
+    rtc_datetime get_datetime = 15;
+    tftpx_packet mcu_upgrade = 120;
+    // tftpx_packet packet = 121;
+
+    // 获取Mcu版本号
+    mcu_version mcu_version = 126;
+    mcu_all_version mcu_all_version = 127;
+
+    // Mcu软复位
+    mcu_softreset mcu_softreset = 128;
+
+    // Mcu状态
+    // mcu_state mcu_state = 128;
+
+    // ### 2.3 参数
+    config_user config_get_user = 152;
+    config_user config_set_user = 153;
+
+    // ### 2.4 时序
+    timging_time_mark timging_time_mark = 180;
+    timging_exec timging_exec = 181;
+    timging_stop timging_stop = 182;
+    timging_sync_back timging_sync_back = 183;
+    tftpx_packet timging_down = 164;
+    // ## 3. IO 设备
+    // 3.1指示灯(M)
+    // led_ctrl led_ctrl = 200;
+    // state_light_set_state
+    light_state status_light = 201;
+
+    // 3.2 按键,开关,微动开关
+
+    // 3.2.1 控制SW11-SW16
+    key_ctrl key_ctrl = 220;
+    key_state key_get_state = 221;
+
+    // 3.2.2 控制SW21-SW26
+    switch_ctrl switch_ctrl = 222;
+    switch_state switch_state = 223;
+  
+    // 3.4获取光耦状态
+    oc_level oc_level_1 = 230; // 获取从驱动板光耦状态
+    oc_level oc_level_2 = 231; // 获取自动进样板光耦状态
+
+    // 3.5 获取浮子 (OC2B)
+    floater_ctrl floater_ctrl = 240;
+    floater_state floater_state = 241;
+
+    // 3.6泵(M)
+    pump_ctrl pump_ctrl = 250;
+
+    // 3.7阀(M)
+    value_ctrl value_ctrl = 260;
+
+    // 3.8电源控制(M)
+    power_ctrl power_ctrl = 270;
+
+    // 3.9 电磁铁控制
+    magnet_ctrl magnet_ctrl = 271;
+
+    // ## 4. ADC设备
+    // ### 4.1空气压力 (D1)
+    build_pressure build_pressure_negative = 400; // 建立负压压
+    build_pressure build_pressure_positive = 401; // 建立正压
+
+    air_pressure get_air_pressure_negative = 402; // 获取负压传感器值
+    air_pressure get_air_pressure_positive = 403; // 获取正压传感器值
+    cbc_leak_detect cbc_leak_detect = 404;        // CBC泄漏检测
+
+    // 4.2液体压力(ADC31-ADC35)
+    liquid_adc_config liquid_adc_set_config = 410;
+    liquid_adc_config liquid_adc_get_config = 413;
+    liquid_adc_ctrl liquid_adc_ctrl = 411;
+    liquid_adc_state liquid_adc_get_state = 412;
+
+    oc_liquid_state oc_liquid_get_state = 414;
+
+    // 4.3电压(F, M)
+    voltage_ctrl voltage_ctrl = 420;
+    voltage_state voltage_get_state = 421;
+
+    // 4.4 气泡检测(D2)
+    bubble_detect_ctrl bubble_detect_ctrl = 430;
+    bubble_detect_state bubble_detect_state = 431;
+
+    // 5.PWM设备
+    // 5.1风扇(M , D1)
+    fan_ctrl fan_ctrl = 500;
+    // CRP
+    laser_ctrl laser_ctrl = 502;               // CRP激光控制
+    crp_gain crp_set_gain = 503;               // 设置CRP增益
+    crp_ad_value crp_get_ad_value = 504;       // 获取CRP通道AD值
+    crp_ad_value crp_ad_automatic = 506;      // 指定通道的AD值自动返回
+    crp_ad_interval crp_set_ad_interval = 505; // 设置AD主动返回间隔
+
+    // 5.2混匀电机(S)
+    mixer_ctrl mixer_ctrl = 513;
+    mixer_config mixer_config = 512;
+
+    // 5.3蜂鸣器(M)
+    buzzer buzzer_ctrl = 520;
+
+    // 6.步进电机(驱动板)
+    motor_config motor_set_config0 = 602;
+    motor_reset motor_reset0 = 603;
+    motor_move motor_move0 = 604;
+    motor_move_linkage  motor_move_linkage0 = 610;
+    motor_goto motor_goto0 = 605;
+    motor_step_to_reset motor_getsteptoreset0 = 606;
+    motor_current_position motor_get_position0 = 607;
+    motor_low_power motor_lowpower0 = 608;
+    motor_suck motor_suck0 = 609;
+
+    // 7.步进电机(自动进样板)
+    motor_config motor_set_config1 = 620;
+    motor_reset motor_reset1 = 621;
+    motor_move motor_move1 = 622;
+    motor_move_linkage  motor_move_linkage1 = 623;
+    motor_goto motor_goto1 = 624;
+    motor_step_to_reset motor_getsteptoreset1 = 625;
+    motor_current_position motor_get_position1 = 626;
+    motor_low_power motor_lowpower1 = 627;
+    motor_suck motor_suck1 = 628;
+
+    // 7. 温控组件(M, D1)
+    temperature_ctrl temp_ctrl = 700;
+    temperature_state temp_state = 701;
+    temperature_config temp_set_config = 702;
+    temperature_config temp_get_config = 703;
+    // 恒温控制器 thermostat
+
+    // 14 条码扫描仪(S)
+    scanner_ctrl scanner_ctrl = 4000;
+    scanner_state scanner_state = 4001;
+    scanner_init scanner_init = 4003;
+    scanner_scan scanner_scan = 4004;
+
+    // 采样针单元
+    proble_config proble_get_config = 5001;
+    proble_config proble_set_config = 5002;
+    proble_position proble_get_position = 5003;
+
+    // 16自动进样
+    // 16.2 进样器Auto(S)
+    // 组件初始化
+    autosampler_init sampler_init = 6003;
+
+    // 进架
+    autosampler_self_push sampler_self_push = 6004;
+
+    // 清架
+    autosampler_self_clear sampler_self_clear = 6006;
+
+    // 试管架运动至特定位置
+    autosampler_shelf_goto sampler_shelf_goto = 6007;
+  
+    // 试管架信息上报
+    autosampler_self_info sampler_self_info = 6012;
+
+    // 样本信息上报
+    autosampler_tube_info sampler_tube_info = 6013;
+
+    // 上位机通知进样器吸样完成,可进行下一步动作
+    autosampler_sample_used_notify sampler_sample_used_notify = 6008;
+
+    // 急诊上报
+    autosampler_urgent_alarm sampler_urgent_notify = 6009;
+
+    // 设置配置参数
+    autosampler_config sampler_set_config = 6010;
+
+    // 获取配置参数
+    autosampler_config sampler_get_config = 6011;
+  }
+}

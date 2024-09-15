@@ -21,6 +21,17 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 #
 project(qpc-zephyr-app)
 
+list(APPEND CMAKE_MODULE_PATH ${ZEPHYR_BASE}/modules/nanopb)
+include(nanopb)
+
+if(CONFIG_SAMPLE_UNLUCKY_NUMBER)
+  set(unlucky_number_type "FT_DEFAULT")
+else()
+  set(unlucky_number_type "FT_IGNORE")
+endif()
+zephyr_nanopb_sources(app src/simple.proto)
+zephyr_nanopb_sources(app src/protocol.proto)
+
 # sources for your project
 # NOTE: Adjust for your project
 #

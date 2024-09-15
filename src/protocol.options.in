@@ -1,0 +1,45 @@
+* include: "stdio.h"
+* include: "stdlib.h"
+* include: "string.h"
+//tftpx_request.packet   type:FT_CALLBACK, callback_datatype:"tftpx_packet*"
+//tftpx_request.packet   type:FT_POINTER
+//tftpx_request.client   type:FT_POINTER
+//tftpx_packet*data      type:FT_CALLBACK, callback_datatype:"tftpx_data*"
+
+* max_size:16
+proble_config* int_size:IS_16
+autosampler_config* int_size:IS_16
+
+//msg.value type: FT_POINTER
+msg.frame_id int_size: IS_16
+msg.device_id int_size: IS_8
+msg.source_id int_size: IS_8
+msg.flag int_size: IS_8
+msg.error max_size: 4
+
+motor_suck.run_grade  int_size: IS_8
+
+temperature_config.id  int_size: IS_8
+temperature_config.pid_*  int_size: IS_16
+
+scanner_scan  max_size :25 
+
+mcu_all_version.version*   max_size:  8
+//mcu_all_version.compile_time* max_size: 22
+
+mcu_version.version*  max_size:  8
+//mcu_version.compile_time* max_size:  22
+
+//error_report.struct_id int_size : IS_16
+//error_report.frame_id int_size :  IS_16
+//error_report.error_code int_size : IS_16
+//error_report.error_para int_size : IS_16
+//error_clear.struct_id int_size: IS_16
+//error_clear.frame_id int_size: IS_16
+//error_clear.error_code int_size: IS_8
+
+config_user.key max_size:  10
+config_user.data max_size: 128
+
+timging_sync_back.data max_size: 128
+
